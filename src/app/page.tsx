@@ -1,65 +1,140 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { APP_NAME, PRICE_PER_LOCATION, TRIAL_DAYS } from '@/lib/constants'
+import { Calendar, Users, Settings, MapPin, CheckCircle, Zap, Shield, Clock } from 'lucide-react'
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-white">
+      {/* Nav */}
+      <nav className="border-b border-slate-100">
+        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+          <span className="text-xl font-bold text-indigo-600">{APP_NAME}</span>
+          <div className="flex items-center gap-6">
+            <Link href="/pricing" className="text-sm text-slate-600 hover:text-slate-900">Pricing</Link>
+            <Link href="/auth/login" className="text-sm text-slate-600 hover:text-slate-900">Sign in</Link>
+            <Link href="/auth/signup" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+              Start free trial
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="mx-auto max-w-7xl px-6 py-24 text-center">
+        <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-1.5 text-sm font-medium text-indigo-700 mb-6">
+          <Zap className="h-4 w-4" />
+          AI-powered franchise scheduling
+        </div>
+        <h1 className="text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl">
+          Schedules that just work.<br />
+          <span className="text-indigo-600">Every single week.</span>
+        </h1>
+        <p className="mt-6 text-xl text-slate-600 max-w-2xl mx-auto">
+          Stop spending hours building schedules in spreadsheets. {APP_NAME} generates
+          compliant, optimized schedules for your entire franchise — in seconds.
+        </p>
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <Link href="/auth/signup" className="rounded-xl bg-indigo-600 px-8 py-4 text-lg font-semibold text-white shadow-sm hover:bg-indigo-700">
+            Start your {TRIAL_DAYS}-day free trial
+          </Link>
+          <Link href="/pricing" className="rounded-xl border border-slate-200 px-8 py-4 text-lg font-semibold text-slate-700 hover:bg-slate-50">
+            See pricing
+          </Link>
+        </div>
+        <p className="mt-4 text-sm text-slate-500">No credit card required. Cancel anytime.</p>
+      </section>
+
+      {/* Features */}
+      <section className="bg-slate-50 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <h2 className="text-center text-3xl font-bold text-slate-900 mb-12">
+            Everything you need to run a tight operation
+          </h2>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { icon: Calendar, title: 'Smart Scheduling', desc: 'AI respects availability, hours caps, days off, and consecutive day limits automatically.' },
+              { icon: Users, title: 'Team Management', desc: 'Track every employee across all locations — roles, hours, and management tier in one place.' },
+              { icon: MapPin, title: 'Multi-Location', desc: 'Manage dozens of locations from a single dashboard. Each gets its own compliant schedule.' },
+              { icon: Settings, title: 'Custom Rules', desc: 'Set your own min/max hours, shift templates, and labor rules. George enforces them all.' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="rounded-2xl bg-white p-6 shadow-sm">
+                <div className="rounded-lg bg-indigo-50 p-3 w-fit mb-4">
+                  <Icon className="h-6 w-6 text-indigo-600" />
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">{title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Social proof */}
+      <section className="py-20">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="rounded-2xl bg-indigo-600 p-10 text-center text-white">
+            <p className="text-2xl font-medium leading-relaxed">
+              &ldquo;I used to spend Sunday nights building next week&rsquo;s schedule. Now I click
+              a button and it&rsquo;s done. The AI actually understands labor compliance.&rdquo;
+            </p>
+            <p className="mt-4 text-indigo-200">— Franchise operator, 9 locations</p>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="bg-slate-50 py-20">
+        <div className="mx-auto max-w-7xl px-6">
+          <h2 className="text-center text-3xl font-bold text-slate-900 mb-12">Get up and running in minutes</h2>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+            {[
+              { step: '1', title: 'Add your locations & team', desc: 'Import employees, set their roles, availability, and scheduling preferences.' },
+              { step: '2', title: 'Configure your rules', desc: 'Set store hours, shift templates, max hours, and any compliance requirements.' },
+              { step: '3', title: 'Generate & publish', desc: 'One click generates your full schedule. Share a link with your team instantly.' },
+            ].map(({ step, title, desc }) => (
+              <div key={step} className="text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-xl font-bold text-white">
+                  {step}
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">{title}</h3>
+                <p className="text-sm text-slate-600">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing teaser */}
+      <section className="py-20">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <h2 className="text-3xl font-bold text-slate-900">Simple, transparent pricing</h2>
+          <p className="mt-4 text-slate-600">
+            Just ${PRICE_PER_LOCATION}/location/month. No per-user fees, no hidden costs.
           </p>
+          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-slate-600">
+            {['Unlimited employees', 'AI schedule generation', 'Publish & share links', 'Email notifications'].map(f => (
+              <span key={f} className="flex items-center gap-1.5">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                {f}
+              </span>
+            ))}
+          </div>
+          <Link href="/auth/signup" className="mt-8 inline-block rounded-xl bg-indigo-600 px-8 py-4 text-lg font-semibold text-white hover:bg-indigo-700">
+            Start free — {TRIAL_DAYS} days on us
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-100 py-10">
+        <div className="mx-auto max-w-7xl px-6 flex items-center justify-between text-sm text-slate-500">
+          <span>&copy; {new Date().getFullYear()} {APP_NAME}</span>
+          <div className="flex gap-6">
+            <Link href="/pricing" className="hover:text-slate-700">Pricing</Link>
+            <Link href="/auth/login" className="hover:text-slate-700">Sign in</Link>
+          </div>
         </div>
-      </main>
+      </footer>
     </div>
-  );
+  )
 }

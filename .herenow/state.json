@@ -1,0 +1,10 @@
+{
+  "publishes": {
+    "kindly-desert-wdvx": {
+      "siteUrl": "https://kindly-desert-wdvx.here.now/",
+      "claimToken": "050f9803d05d3cb493d04f88663d2d957328b8ab0e9150ff8161db472cae2b9c",
+      "claimUrl": "https://here.now/claim?slug=kindly-desert-wdvx&token=050f9803d05d3cb493d04f88663d2d957328b8ab0e9150ff8161db472cae2b9c",
+      "expiresAt": "2026-03-13T00:55:45.177Z"
+    }
+  }
+}
