@@ -18,14 +18,14 @@ async function scheduleFoundersPriceUpgrade(subscriptionId: string, locationCoun
   // Create a subscription schedule that keeps Founders Plan for 12 months
   // then switches to Standard ($49) automatically
   try {
-    const schedule = await stripe.subscriptionSchedules.create({
+    const schedule = await getStripe().subscriptionSchedules.create({
       from_subscription: subscriptionId,
     })
 
     // Get current phase details
     const currentPhase = schedule.phases[0]
 
-    await stripe.subscriptionSchedules.update(schedule.id, {
+    await getStripe().subscriptionSchedules.update(schedule.id, {
       phases: [
         {
           // Phase 1: Founders Plan — 12 months from now
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })

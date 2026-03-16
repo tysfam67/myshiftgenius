@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     let customerId = clientRow?.stripe_customer_id
 
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await getStripe().customers.create({
         email: clientRow?.contact_email ?? user.email,
         name: clientRow?.name ?? undefined,
         metadata: { client_id: mssUser.client_id },
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
     // Founders Plan: $39/location/month for 12 months, then $49/location/month
     // Implemented via subscription_data metadata — schedule upgrade handled post-checkout
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
