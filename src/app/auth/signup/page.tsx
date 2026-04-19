@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { APP_NAME, PRICE_PER_LOCATION, TRIAL_DAYS } from '@/lib/constants'
+import { APP_NAME, PRICE_PER_LOCATION, FOUNDERS_PRICE_PER_LOCATION, TRIAL_DAYS, foundersStillAvailable } from '@/lib/constants'
 import { createClient } from '@/lib/supabase'
 
 export default function SignupPage() {
@@ -66,7 +66,10 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-bold text-indigo-600">{APP_NAME}</Link>
           <h1 className="mt-4 text-2xl font-semibold text-slate-900">Start your free trial</h1>
-          <p className="mt-1 text-slate-500">{TRIAL_DAYS} days free, then ${PRICE_PER_LOCATION}/location/month</p>
+          <p className="mt-1 text-slate-500">
+            {TRIAL_DAYS} days free, then ${foundersStillAvailable() ? FOUNDERS_PRICE_PER_LOCATION : PRICE_PER_LOCATION}/location/month
+            {foundersStillAvailable() && <span className="block text-xs text-indigo-700 mt-0.5">Founders rate locked through Oct 31, 2026</span>}
+          </p>
         </div>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
           <form className="space-y-5" onSubmit={handleSubmit}>

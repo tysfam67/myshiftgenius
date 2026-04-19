@@ -1,8 +1,17 @@
 import Link from 'next/link'
-import { APP_NAME, PRICE_PER_LOCATION, TRIAL_DAYS } from '@/lib/constants'
+import {
+  APP_NAME,
+  PRICE_PER_LOCATION,
+  FOUNDERS_PRICE_PER_LOCATION,
+  TRIAL_DAYS,
+  foundersStillAvailable,
+} from '@/lib/constants'
 import { Calendar, Users, Settings, MapPin, CheckCircle, Zap, Shield, Clock } from 'lucide-react'
 
 export default function LandingPage() {
+  const foundersOpen = foundersStillAvailable()
+  const displayPrice = foundersOpen ? FOUNDERS_PRICE_PER_LOCATION : PRICE_PER_LOCATION
+
   return (
     <div className="min-h-screen bg-white">
       {/* Nav */}
@@ -109,7 +118,14 @@ export default function LandingPage() {
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h2 className="text-3xl font-bold text-slate-900">Simple, transparent pricing</h2>
           <p className="mt-4 text-slate-600">
-            Just ${PRICE_PER_LOCATION}/location/month. No per-user fees, no hidden costs.
+            {foundersOpen ? (
+              <>
+                Founders pricing: just <span className="font-semibold text-slate-900">${displayPrice}/location/month</span>{' '}
+                — locked through October 31, 2026.
+              </>
+            ) : (
+              <>Just ${PRICE_PER_LOCATION}/location/month. No per-user fees, no hidden costs.</>
+            )}
           </p>
           <div className="mt-6 flex items-center justify-center gap-6 text-sm text-slate-600">
             {['Unlimited employees', 'AI schedule generation', 'Publish & share links', 'Email notifications'].map(f => (

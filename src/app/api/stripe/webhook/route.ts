@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServerClient } from '@supabase/ssr'
+import { FOUNDERS_CUTOFF_MS } from '@/lib/constants'
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!)
@@ -14,29 +15,35 @@ function getAdminClient() {
   )
 }
 
+// Founders Plan ($39/loc) auto-upgrades to Standard ($49/loc) at midnight UTC
+// on Nov 1, 2026. Single fixed cutoff for all founders subscribers, regardless
+// of when they signed up.
+const FOUNDERS_CUTOFF_UNIX = Math.floor(FOUNDERS_CUTOFF_MS / 1000)
+
 async function scheduleFoundersPriceUpgrade(subscriptionId: string, locationCount: number) {
-  // Create a subscription schedule that keeps Founders Plan for 12 months
-  // then switches to Standard ($49) automatically
+  if (Date.now() >= FOUNDERS_CUTOFF_MS) {
+    // Already past the cutoff — nothing to schedule, this subscriber should
+    // already be on the Standard price (set in checkout).
+    return
+  }
   try {
     const schedule = await getStripe().subscriptionSchedules.create({
       from_subscription: subscriptionId,
     })
-
-    // Get current phase details
     const currentPhase = schedule.phases[0]
 
     await getStripe().subscriptionSchedules.update(schedule.id, {
       phases: [
         {
-          // Phase 1: Founders Plan — 12 months from now
+          // Phase 1: Founders Plan ($39/loc) until Nov 1 2026 00:00 UTC
           items: [{ price: process.env.STRIPE_PRICE_ID_FOUNDERS!, quantity: locationCount }],
           start_date: currentPhase.start_date,
-          end_date: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60, // 12 months
+          end_date: FOUNDERS_CUTOFF_UNIX,
           trial_end: currentPhase.trial_end ?? undefined,
           metadata: { plan: 'founders' },
         },
         {
-          // Phase 2: Standard Plan — $49/location/month forever after
+          // Phase 2: Standard Plan ($49/loc) from Nov 1 2026 onward, forever.
           items: [{ price: process.env.STRIPE_PRICE_ID_STANDARD!, quantity: locationCount }],
           metadata: { plan: 'standard' },
         },
@@ -44,7 +51,7 @@ async function scheduleFoundersPriceUpgrade(subscriptionId: string, locationCoun
       end_behavior: 'release',
     })
 
-    console.log(`Founders upgrade scheduled for subscription ${subscriptionId}`)
+    console.log(`Founders upgrade scheduled for ${subscriptionId} (cutoff ${new Date(FOUNDERS_CUTOFF_MS).toISOString()})`)
   } catch (err) {
     console.error('Failed to schedule founders upgrade:', err)
   }

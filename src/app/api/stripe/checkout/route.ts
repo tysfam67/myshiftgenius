@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase-server'
+import { foundersStillAvailable } from '@/lib/constants'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
@@ -59,23 +60,25 @@ export async function POST(request: Request) {
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://myshiftgenius.com'
 
-    // Founders Plan: $39/location/month for 12 months, then $49/location/month
-    // Implemented via subscription_data metadata — schedule upgrade handled post-checkout
+    // Founders Plan ($39/loc) is offered to anyone who subscribes through Oct 31, 2026.
+    // After that, new signups go straight to Standard ($49/loc).
+    // For founders subscribers, the webhook installs a subscription schedule that
+    // auto-upgrades to Standard at midnight UTC on Nov 1, 2026.
+    const isFounders = foundersStillAvailable()
+    const priceId = isFounders
+      ? process.env.STRIPE_PRICE_ID_FOUNDERS!
+      : process.env.STRIPE_PRICE_ID_STANDARD!
+
     const session = await getStripe().checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: process.env.STRIPE_PRICE_ID_FOUNDERS!,
-          quantity: locationCount,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: locationCount }],
       subscription_data: {
         trial_period_days: 30,
         metadata: {
           client_id: mssUser.client_id,
-          plan: 'founders',
+          plan: isFounders ? 'founders' : 'standard',
           location_count: String(locationCount),
         },
       },
