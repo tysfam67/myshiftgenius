@@ -1,7 +1,8 @@
-import { APP_NAME } from '@/lib/constants'
-import { MapPin, Users, Calendar, TrendingUp } from 'lucide-react'
+import { APP_NAME, FOUNDERS_PRICE_PER_LOCATION, foundersStillAvailable } from '@/lib/constants'
+import { MapPin, Users, Calendar, TrendingUp, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
+import { SubscribeButton } from './SubscribeButton'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -17,6 +18,13 @@ export default async function DashboardPage() {
     .single()
 
   const clientId = mssUser?.client_id ?? null
+
+  // Get billing tier so we can show a subscribe banner when there's no active sub
+  const { data: clientRow } = clientId
+    ? await supabase.from('gb_clients').select('billing_tier').eq('client_id', clientId).maybeSingle()
+    : { data: null }
+  const billingTier = (clientRow as { billing_tier?: string | null } | null)?.billing_tier ?? null
+  const needsSubscribe = !billingTier || billingTier === 'cancelled' || billingTier === 'trial'
 
   // Fetch counts and latest schedule in parallel
   const [locResult, empResult, schedResult] = await Promise.all([
@@ -56,6 +64,34 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
         <p className="text-slate-500 mt-1">Welcome to {APP_NAME}</p>
       </div>
+
+      {needsSubscribe && (
+        <div className="mb-8 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-white p-6 shadow-sm">
+          <div className="flex items-start gap-4 flex-wrap">
+            <div className="rounded-lg bg-indigo-100 p-2.5">
+              <Sparkles className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div className="flex-1 min-w-[260px]">
+              <h2 className="text-lg font-semibold text-slate-900">
+                {billingTier === 'trial' ? 'Your free trial is active' : 'Start your subscription'}
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                {foundersStillAvailable() ? (
+                  <>
+                    Lock in <span className="font-semibold">${FOUNDERS_PRICE_PER_LOCATION}/location/month</span> Founders pricing
+                    through October 31, 2026. 30-day free trial — no credit card charged today.
+                  </>
+                ) : (
+                  <>$49/location/month with a 30-day free trial. No credit card charged today.</>
+                )}
+              </p>
+            </div>
+            <SubscribeButton
+              ctaLabel={billingTier === 'trial' ? 'Manage subscription' : 'Start 30-day trial'}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {stats.map(({ label, value, icon: Icon, color }) => (
