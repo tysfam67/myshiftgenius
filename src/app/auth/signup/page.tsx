@@ -21,7 +21,7 @@ export default function SignupPage() {
     setLoading(true)
     const supabase = createClient()
 
-    const { data, error: authError } = await supabase.auth.signUp({
+    const { error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -33,17 +33,6 @@ export default function SignupPage() {
       setError(authError.message)
       setLoading(false)
       return
-    }
-
-    if (data.user) {
-      const { error: insertError } = await supabase
-        .from('mss_users')
-        .insert({ id: data.user.id, client_id: 'jersey_mikes', role: 'owner' })
-
-      if (insertError) {
-        // Non-fatal: user was created, just log the insert failure
-        console.error('mss_users insert error:', insertError.message)
-      }
     }
 
     setSuccess(true)

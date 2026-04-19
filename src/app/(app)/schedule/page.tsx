@@ -1,6 +1,7 @@
-import { Calendar, Plus, RefreshCw } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
+import { GenerateButton } from './GenerateButton'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -105,14 +106,8 @@ export default async function SchedulePage() {
           <select className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-indigo-500 focus:outline-none">
             <option>All locations</option>
           </select>
-          <button className="flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-            <RefreshCw className="h-4 w-4" />
-            Regenerate
-          </button>
-          <button className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-            <Plus className="h-4 w-4" />
-            New Schedule
-          </button>
+          <GenerateButton variant="secondary" label="Regenerate" weekStart={schedule?.week_start} />
+          <GenerateButton variant="primary" label="New Schedule" />
         </div>
       </div>
 
@@ -140,10 +135,7 @@ export default async function SchedulePage() {
             <p className="text-slate-500 text-sm max-w-xs mb-6">
               Make sure you have at least one location and some employees before generating.
             </p>
-            <button className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">
-              <RefreshCw className="h-4 w-4" />
-              Generate schedule
-            </button>
+            <GenerateButton variant="primary" label="Generate schedule" />
           </div>
         </div>
       ) : hasShifts ? (
