@@ -188,6 +188,7 @@ export default function LandingPage() {
           <span>&copy; {new Date().getFullYear()} {APP_NAME}</span>
           <div className="flex gap-6">
             <Link href="/pricing" className="hover:text-slate-700">Pricing</Link>
+            <Link href="/privacy" className="hover:text-slate-700">Privacy</Link>
             <Link href="/auth/login" className="hover:text-slate-700">Sign in</Link>
           </div>
         </div>
