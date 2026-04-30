@@ -32,12 +32,39 @@ const statusConfig = {
 export default function TimeOffPage() {
   const [requestType, setRequestType] = useState<RequestType>('full_day')
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    // TODO: POST /api/portal/time-off
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 4000)
+    setError(null)
+
+    const form = e.currentTarget
+    const data = new FormData(form)
+
+    const body: Record<string, string> = {
+      type: requestType,
+      date: data.get('date') as string,
+    }
+    if (requestType === 'partial') {
+      body.start_time = data.get('start_time') as string
+      body.end_time = data.get('end_time') as string
+    }
+    const reason = data.get('reason') as string
+    if (reason) body.reason = reason
+
+    const res = await fetch('/api/portal/time-off', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+
+    if (res.ok) {
+      setSubmitted(true)
+      setTimeout(() => setSubmitted(false), 4000)
+    } else {
+      const json = await res.json()
+      setError(json.error ?? 'Failed to submit request')
+    }
   }
 
   return (
@@ -130,6 +157,13 @@ export default function TimeOffPage() {
               className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-none"
             />
           </div>
+
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
 
           {submitted && (
             <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-100 px-4 py-3 text-sm text-green-700">
