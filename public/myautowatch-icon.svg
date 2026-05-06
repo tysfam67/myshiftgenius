@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e40af"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </radialGradient>
+    <linearGradient id="eyeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="url(#bgGrad)"/>
+
+  <!-- Eye outer shape -->
+  <path d="M12 50 C24 26, 76 26, 88 50 C76 74, 24 74, 12 50 Z" fill="none" stroke="url(#eyeGrad)" stroke-width="3"/>
+
+  <!-- Iris ring -->
+  <circle cx="50" cy="50" r="14" fill="none" stroke="url(#eyeGrad)" stroke-width="3"/>
+
+  <!-- Pupil -->
+  <circle cx="50" cy="50" r="6" fill="#38bdf8"/>
+
+  <!-- Car body -->
+  <rect x="29" y="53" width="42" height="10" rx="2.5" fill="#0a1628"/>
+
+  <!-- Car roof -->
+  <path d="M34 53 L38 43 L62 43 L66 53 Z" fill="#0a1628"/>
+
+  <!-- Windshield highlight -->
+  <path d="M39 52 L42 45 L58 45 L61 52 Z" fill="#1e3a5f"/>
+
+  <!-- Wheels -->
+  <circle cx="37" cy="64" r="5" fill="#0a1628"/>
+  <circle cx="63" cy="64" r="5" fill="#0a1628"/>
+  <circle cx="37" cy="64" r="2.5" fill="#38bdf8"/>
+  <circle cx="63" cy="64" r="2.5" fill="#38bdf8"/>
+
+  <!-- Radar arc 1 -->
+  <path d="M70 18 A28 28 0 0 1 82 32" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <!-- Radar arc 2 -->
+  <path d="M74 12 A36 36 0 0 1 88 28" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.4"/>
+</svg>
