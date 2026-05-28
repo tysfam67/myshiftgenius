@@ -5,10 +5,24 @@ import { useState } from 'react'
 import { APP_NAME, PRICE_PER_LOCATION, FOUNDERS_PRICE_PER_LOCATION, TRIAL_DAYS, foundersStillAvailable } from '@/lib/constants'
 import { createClient } from '@/lib/supabase'
 
+// Must stay in sync with gb_role_templates seed rows.
+const BUSINESS_CATEGORIES = [
+  { id: 'qsr_fast_food',     label: 'Food — QSR / Fast Food' },
+  { id: 'food_full_service', label: 'Food — Full Service' },
+  { id: 'retail',            label: 'Retail' },
+  { id: 'beauty_personal',   label: 'Beauty & Personal Care' },
+  { id: 'fitness',           label: 'Fitness' },
+  { id: 'auto_service',      label: 'Auto Service' },
+  { id: 'professional',      label: 'Professional Services' },
+  { id: 'healthcare',        label: 'Healthcare' },
+  { id: 'other',             label: 'Other / Set up manually' },
+]
+
 export default function SignupPage() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [brand, setBrand] = useState('')
+  const [businessCategory, setBusinessCategory] = useState('qsr_fast_food')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -25,7 +39,12 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { first_name: firstName, last_name: lastName, brand },
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          brand,
+          business_category: businessCategory,
+        },
       },
     })
 
@@ -107,7 +126,7 @@ export default function SignupPage() {
               </div>
             </div>
             <div>
-              <label htmlFor="brand" className="block text-sm font-medium text-slate-700 mb-1.5">Franchise brand</label>
+              <label htmlFor="brand" className="block text-sm font-medium text-slate-700 mb-1.5">Business name</label>
               <input
                 id="brand"
                 name="brand"
@@ -118,6 +137,22 @@ export default function SignupPage() {
                 className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 placeholder="e.g. Jersey Mike's"
               />
+            </div>
+            <div>
+              <label htmlFor="business_category" className="block text-sm font-medium text-slate-700 mb-1.5">Business type</label>
+              <select
+                id="business_category"
+                name="business_category"
+                required
+                value={businessCategory}
+                onChange={e => setBusinessCategory(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              >
+                {BUSINESS_CATEGORIES.map(c => (
+                  <option key={c.id} value={c.id}>{c.label}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-400 mt-1">Sets your starter role list — fully editable later</p>
             </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">Work email</label>

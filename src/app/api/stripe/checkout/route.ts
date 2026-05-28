@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     // Get or create Stripe customer
     const { data: clientRow } = await supabase
       .from('gb_clients')
-      .select('stripe_customer_id, contact_email, name')
+      .select('stripe_customer_id, contact_email, brand')
       .eq('client_id', mssUser.client_id)
       .single()
 
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     if (!customerId) {
       const customer = await getStripe().customers.create({
         email: clientRow?.contact_email ?? user.email,
-        name: clientRow?.name ?? undefined,
+        name: clientRow?.brand ?? undefined,
         metadata: { client_id: mssUser.client_id },
       })
       customerId = customer.id
@@ -69,18 +69,21 @@ export async function POST(request: Request) {
       ? process.env.STRIPE_PRICE_ID_FOUNDERS!
       : process.env.STRIPE_PRICE_ID_STANDARD!
 
+    const sessionMetadata = {
+      client_id: mssUser.client_id,
+      plan: isFounders ? 'founders' : 'standard',
+      location_count: String(locationCount),
+    }
+
     const session = await getStripe().checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: locationCount }],
+      metadata: sessionMetadata,
       subscription_data: {
         trial_period_days: 30,
-        metadata: {
-          client_id: mssUser.client_id,
-          plan: isFounders ? 'founders' : 'standard',
-          location_count: String(locationCount),
-        },
+        metadata: sessionMetadata,
       },
       success_url: `${appUrl}/dashboard?billing=success`,
       cancel_url:  `${appUrl}/dashboard?billing=cancelled`,

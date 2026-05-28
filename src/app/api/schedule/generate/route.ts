@@ -80,6 +80,7 @@ export async function POST(request: Request) {
     .single()
 
   if (error) {
+    console.error('[api/schedule/generate] insert failed:', { clientId: mssUser.client_id, weekStart, error })
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 

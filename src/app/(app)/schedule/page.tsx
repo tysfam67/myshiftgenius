@@ -34,16 +34,17 @@ export default async function SchedulePage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const { data: mssUser } = await supabase
+  const { data: mssUser, error: mssUserErr } = await supabase
     .from('mss_users')
     .select('client_id')
     .eq('id', user.id)
     .single()
+  if (mssUserErr) console.error('[schedule] mss_users lookup failed:', mssUserErr)
 
   const clientId = mssUser?.client_id ?? null
 
   // Latest schedule
-  const { data: schedule } = clientId
+  const { data: schedule, error: scheduleErr } = clientId
     ? await supabase
         .from('gb_schedules')
         .select('id, week_start, status')
@@ -51,7 +52,8 @@ export default async function SchedulePage() {
         .order('week_start', { ascending: false })
         .limit(1)
         .maybeSingle()
-    : { data: null }
+    : { data: null, error: null }
+  if (scheduleErr) console.error('[schedule] gb_schedules lookup failed:', scheduleErr)
 
   // If a schedule exists, fetch shifts and employees
   let shifts: GbShift[] = []
@@ -69,8 +71,10 @@ export default async function SchedulePage() {
             .select('id, name')
             .eq('client_id', clientId)
             .eq('active', true)
-        : Promise.resolve({ data: [] }),
+        : Promise.resolve({ data: [], error: null }),
     ])
+    if (shiftsResult.error) console.error('[schedule] gb_schedule_shifts lookup failed:', shiftsResult.error)
+    if (empsResult.error) console.error('[schedule] gb_employees lookup failed:', empsResult.error)
     shifts = (shiftsResult.data as GbShift[]) ?? []
     employees = (empsResult.data as GbEmployee[]) ?? []
   }

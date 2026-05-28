@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { SubscribeButton } from './SubscribeButton'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
   const supabase = await createClient()
 
@@ -11,20 +13,25 @@ export default async function DashboardPage() {
   if (!user) redirect('/auth/login')
 
   // Get client_id for this user
-  const { data: mssUser } = await supabase
+  const { data: mssUser, error: mssUserErr } = await supabase
     .from('mss_users')
     .select('client_id')
     .eq('id', user.id)
     .single()
+  if (mssUserErr) console.error('[dashboard] mss_users lookup failed:', mssUserErr)
 
   const clientId = mssUser?.client_id ?? null
 
-  // Get billing tier so we can show a subscribe banner when there's no active sub
-  const { data: clientRow } = clientId
+  // Get billing tier so we can show a subscribe banner when there's no active sub.
+  // Trialing customers are paying customers (they've given us a card) — don't
+  // nag them with a banner. Only show the banner for users with no subscription
+  // at all or whose subscription has been cancelled.
+  const { data: clientRow, error: clientRowErr } = clientId
     ? await supabase.from('gb_clients').select('billing_tier').eq('client_id', clientId).maybeSingle()
-    : { data: null }
+    : { data: null, error: null }
+  if (clientRowErr) console.error('[dashboard] gb_clients lookup failed:', clientRowErr)
   const billingTier = (clientRow as { billing_tier?: string | null } | null)?.billing_tier ?? null
-  const needsSubscribe = !billingTier || billingTier === 'cancelled' || billingTier === 'trial'
+  const needsSubscribe = !billingTier || billingTier === 'cancelled'
 
   // Fetch counts and latest schedule in parallel
   const [locResult, empResult, schedResult] = await Promise.all([
@@ -38,6 +45,10 @@ export default async function DashboardPage() {
       ? supabase.from('gb_schedules').select('id, week_start, status').eq('client_id', clientId).order('week_start', { ascending: false }).limit(1).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
   ])
+
+  if (locResult.error) console.error('[dashboard] gb_locations count failed:', locResult.error)
+  if (empResult.error) console.error('[dashboard] gb_employees count failed:', empResult.error)
+  if (schedResult.error) console.error('[dashboard] gb_schedules lookup failed:', schedResult.error)
 
   const locationCount = locResult.count ?? 0
   const employeeCount = empResult.count ?? 0
